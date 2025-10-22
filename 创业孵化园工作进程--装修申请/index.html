@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创业孵化项目装修工作流程 - 交互式报告</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Neutrals -->
+    <!-- Application Structure Plan: 我设计了一个基于任务的仪表板式单页应用，而非简单复刻报告的线性结构。顶部设有导航栏（项目总览、详细流程、时间与问题、行动方案），用户可以快速跳转至关心模块。这种结构便于用户按需探索，例如，管理者可能更关心“时间与问题”，而执行者则需要聚焦“详细流程”。通过卡片式布局和交互式图表，信息被重新组织，使其更直观、更易于消化，旨在提高项目各方对流程的整体认知和协作效率。 -->
+    <!-- Visualization & Content Choices: 
+        - 流程概述 -> 目标: 快速告知 -> 呈现方式: 核心指标卡片 (HTML/CSS) -> 交互: 无 -> 理由: 将关键数字（6个项目，8-10天周期）提炼出来，形成视觉焦点，便于快速掌握项目规模。
+        - 关键时间节点 -> 目标: 对比周期 -> 呈现方式: 条形图 (Chart.js/Canvas) -> 交互: 鼠标悬停显示详情 -> 理由: 将抽象的时间数据可视化，用户能直观地看到“招投标”是耗时最长的环节，有助于资源规划。
+        - 具体工作流程 -> 目标: 组织与展示步骤 -> 呈现方式: 交互式垂直时间线 (HTML/CSS/JS) -> 交互: 点击步骤展开详情 -> 理由: 相比静态列表，动态时间线更有条理，点击交互隐藏了次要信息，使主流程更清晰，符合用户逐步探索的认知习惯。
+        - 问题与建议 -> 目标: 告知风险与对策 -> 呈现方式: 卡片式列表 (HTML/CSS) -> 交互: 无 -> 理由: 使用清晰的卡片布局，将问题和解决方案并列呈现，结构分明，便于用户理解风险并找到对应策略。
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f8f7f4;
+            color: #3f3c3a;
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+        }
+        .nav-link.active, .nav-link:hover {
+            color: #0c4a6e; /* sky-800 */
+            border-bottom-color: #0c4a6e;
+        }
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #e7e5e4; /* stone-200 */
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07);
+        }
+        .timeline-item .details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+        .timeline-item.open .details {
+            max-height: 500px;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold text-sky-800">创业孵化项目装修流程</h1>
+            <div class="hidden md:flex space-x-8">
+                <a href="#overview" class="nav-link pb-2 border-b-2 border-transparent text-gray-600 font-medium">项目总览</a>
+                <a href="#workflow" class="nav-link pb-2 border-b-2 border-transparent text-gray-600 font-medium">详细流程</a>
+                <a href="#timeline-issues" class="nav-link pb-2 border-b-2 border-transparent text-gray-600 font-medium">时间与问题</a>
+                <a href="#actions" class="nav-link pb-2 border-b-2 border-transparent text-gray-600 font-medium">行动方案</a>
+            </div>
+             <button id="mobile-menu-button" class="md:hidden focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
+             <a href="#overview" class="block py-2 text-gray-600 font-medium">项目总览</a>
+             <a href="#workflow" class="block py-2 text-gray-600 font-medium">详细流程</a>
+             <a href="#timeline-issues" class="block py-2 text-gray-600 font-medium">时间与问题</a>
+             <a href="#actions" class="block py-2 text-gray-600 font-medium">行动方案</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-8 md:py-12">
+
+        <!-- Section 1: Project Overview -->
+        <section id="overview" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold text-center mb-4 text-gray-800">项目总览</h2>
+            <p class="text-center text-lg text-gray-600 max-w-3xl mx-auto mb-10">
+                为确保6个创业孵化项目顺利入驻，本项目旨在规范化店铺门头及内部的改造装修工程。本报告将清晰展示从申请到施工单位确定的完整流程、时间规划、潜在问题及应对策略。
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                <div class="card p-6 rounded-lg">
+                    <div class="text-sky-700 text-5xl font-bold">6</div>
+                    <p class="mt-2 text-lg font-medium text-gray-700">个创业项目</p>
+                </div>
+                <div class="card p-6 rounded-lg">
+                    <div class="text-sky-700 text-5xl font-bold">8-10</div>
+                    <p class="mt-2 text-lg font-medium text-gray-700">个工作日 (预计总周期)</p>
+                </div>
+                <div class="card p-6 rounded-lg">
+                    <div class="text-red-600 text-5xl font-bold">4</div>
+                    <p class="mt-2 text-lg font-medium text-gray-700">个当前主要问题</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Detailed Workflow -->
+        <section id="workflow" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold text-center mb-4 text-gray-800">具体工作流程</h2>
+            <p class="text-center text-lg text-gray-600 max-w-3xl mx-auto mb-12">
+                整个装修工程从申请到最终确定施工单位，共分为7个关键步骤。点击每个步骤可查看详细信息和所需材料，清晰了解各阶段的执行要点与责任方。
+            </p>
+            <div class="relative max-w-2xl mx-auto">
+                <!-- Timeline line -->
+                <div class="absolute left-4 top-0 h-full w-0.5 bg-sky-200"></div>
+                <!-- Timeline items -->
+                <div id="timeline-container" class="space-y-8">
+                </div>
+            </div>
+        </section>
+        
+        <!-- Section 3: Timeline & Issues -->
+        <section id="timeline-issues" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold text-center mb-4 text-gray-800">关键时间节点与主要问题</h2>
+             <p class="text-center text-lg text-gray-600 max-w-3xl mx-auto mb-12">
+                项目成功与否取决于对时间的精确把控和对问题的及时响应。左侧图表展示了各阶段的预计耗时，右侧则列出了当前亟待解决的核心问题，两者共同构成了项目风险管理的关键。
+            </p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+                <div class="card rounded-lg p-6">
+                    <h3 class="text-xl font-bold mb-4 text-gray-800">各阶段预计耗时 (天)</h3>
+                    <div class="chart-container relative h-80 md:h-96 w-full max-w-xl mx-auto">
+                        <canvas id="timelineChart"></canvas>
+                    </div>
+                </div>
+                <div class="card rounded-lg p-6">
+                    <h3 class="text-xl font-bold mb-4 text-gray-800">当前存在的主要问题</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start p-4 bg-amber-50 rounded-md">
+                            <span class="text-amber-600 font-bold text-xl mr-4">!</span>
+                            <div>
+                                <h4 class="font-semibold text-gray-700">设计方案滞后</h4>
+                                <p class="text-gray-600">图纸与装修方案尚未完成，是启动流程的前置瓶颈。</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start p-4 bg-amber-50 rounded-md">
+                           <span class="text-amber-600 font-bold text-xl mr-4">!</span>
+                            <div>
+                                <h4 class="font-semibold text-gray-700">施工单位协调</h4>
+                                <p class="text-gray-600">框架协议内施工单位的响应速度与报价需协调。</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start p-4 bg-amber-50 rounded-md">
+                            <span class="text-amber-600 font-bold text-xl mr-4">!</span>
+                            <div>
+                                <h4 class="font-semibold text-gray-700">部门协同</h4>
+                                <p class="text-gray-600">OA申请流程涉及多部门，需明确责任节点与牵头人。</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start p-4 bg-amber-50 rounded-md">
+                            <span class="text-amber-600 font-bold text-xl mr-4">!</span>
+                            <div>
+                                <h4 class="font-semibold text-gray-700">材料不全风险</h4>
+                                <p class="text-gray-600">时间紧、任务重，需防止因材料不全导致重复退回。</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Actions -->
+        <section id="actions" class="scroll-mt-24">
+            <h2 class="text-3xl font-bold text-center mb-4 text-gray-800">建议与下一步行动</h2>
+            <p class="text-center text-lg text-gray-600 max-w-3xl mx-auto mb-12">
+                为应对当前挑战并确保项目顺利推进，我们提出以下四项具体行动建议。这些措施旨在打通瓶颈、明确责任、提高效率，确保装修工作按时、高质量完成。
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="card rounded-lg p-6 text-center">
+                    <div class="text-3xl mb-3">🎨</div>
+                    <h3 class="font-bold text-lg mb-2 text-sky-800">完成设计图纸</h3>
+                    <p class="text-gray-600">由就业指导中心立即协调后勤处，完成各项目门头与内部初步图纸。</p>
+                </div>
+                <div class="card rounded-lg p-6 text-center">
+                    <div class="text-3xl mb-3">📋</div>
+                    <h3 class="font-bold text-lg mb-2 text-sky-800">启动清单编制</h3>
+                    <p class="text-gray-600">同步启动框架协议内单位的现场勘查与工程量清单编制工作。</p>
+                </div>
+                <div class="card rounded-lg p-6 text-center">
+                    <div class="text-3xl mb-3">🤝</div>
+                    <h3 class="font-bold text-lg mb-2 text-sky-800">建立沟通专班</h3>
+                    <p class="text-gray-600">建立“装修工作专班群”，明确各方负责人及节点时间。</p>
+                </div>
+                <div class="card rounded-lg p-6 text-center">
+                    <div class="text-3xl mb-3">✅</div>
+                    <h3 class="font-bold text-lg mb-2 text-sky-800">标准化申请材料</h3>
+                    <p class="text-gray-600">形成材料清单模板，确保OA申请一次性通过，避免返工。</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white mt-16 border-t">
+        <div class="container mx-auto px-6 py-4 text-center text-gray-500">
+            <p>&copy; 2025 创业孵化项目组. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            const workflowData = [
+                { title: '提出装修申请', department: '就业指导中心 / 后勤处', details: '项目发起的第一步，由需求部门正式提出书面或系统申请。' },
+                { title: '具备图纸与方案', department: '就业指导中心 / 后勤处', details: '此为启动后续流程的核心前提条件，必须拥有明确的门头改造及内部装修设计。' },
+                { title: '编制工程量清单', department: '后勤处 / 框架协议单位', details: '后勤处依据图纸和现场情况，推荐有资质的单位进行详细的工程量估算与清单编制。' },
+                { title: '完成基础材料', department: '就业指导中心 / 后勤处', details: '此阶段需要备齐三项关键文件：<ul><li class="mt-1">图纸及装修方案</li><li class="mt-1">工程量清单</li><li class="mt-1">上会记录及会议纪要（含项目启动说明）</li></ul>' },
+                { title: '发起OA采购申请', department: '就业指导中心 / 后勤处', details: '在所有基础材料准备齐全后，通过学校OA系统正式发起采购流程。' },
+                { title: '组织招投标', department: '国资处', details: 'OA审批通过后，由国资处接手，负责组织公开透明的招投标过程，包括：<ul><li class="mt-1">按流程发布标书</li><li class="mt-1">安排开标、评标、定标</li></ul>' },
+                { title: '确定施工单位', department: '国资处', details: '若材料齐全、流程顺利，预计自提交OA申请起5个工作日内可最终确定中标的施工单位。' }
+            ];
+
+            const timelineContainer = document.getElementById('timeline-container');
+            workflowData.forEach((item, index) => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'timeline-item relative pl-10 cursor-pointer';
+                itemEl.innerHTML = `
+                    <div class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 bg-sky-500 rounded-full border-2 border-white"></div>
+                    <div class="card p-4 rounded-lg">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-sm font-semibold text-sky-600">步骤 ${index + 1}</span>
+                                <h4 class="font-bold text-lg text-gray-800">${item.title}</h4>
+                                <p class="text-sm text-gray-500">负责部门: ${item.department}</p>
+                            </div>
+                             <svg class="w-5 h-5 text-gray-400 transition-transform transform arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                        <div class="details text-gray-600 mt-2 text-sm leading-relaxed">
+                           ${item.details}
+                        </div>
+                    </div>
+                `;
+                timelineContainer.appendChild(itemEl);
+            });
+            
+            timelineContainer.addEventListener('click', (e) => {
+                const item = e.target.closest('.timeline-item');
+                if (item) {
+                    item.classList.toggle('open');
+                    const arrow = item.querySelector('.arrow');
+                    arrow.classList.toggle('rotate-180');
+                }
+            });
+
+            const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+            new Chart(timelineCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['图纸与方案设计', '工程量清单编制', 'OA采购申请', '招投标与定标'],
+                    datasets: [{
+                        label: '预计耗时 (天)',
+                        data: [2, 1, 1, 5],
+                        backgroundColor: [
+                            'rgba(56, 189, 248, 0.6)', // sky-400
+                            'rgba(14, 165, 233, 0.6)', // sky-500
+                            'rgba(2, 132, 199, 0.6)',  // sky-600
+                            'rgba(7, 89, 133, 0.6)'    // sky-800
+                        ],
+                        borderColor: [
+                            'rgb(56, 189, 248)',
+                            'rgb(14, 165, 233)',
+                            'rgb(2, 132, 199)',
+                            'rgb(7, 89, 133)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#e7e5e4' // stone-200
+                            }
+                        },
+                        y: {
+                           grid: {
+                                display: false
+                           }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` 预计耗时: ${context.raw} 天`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('section');
+
+            function changeNav() {
+                let index = sections.length;
+                while(--index && window.scrollY + 100 < sections[index].offsetTop) {}
+                
+                navLinks.forEach((link) => link.classList.remove('active'));
+                if (index > -1) {
+                   const activeLink = document.querySelector(`.nav-link[href="#${sections[index].id}"]`);
+                   if(activeLink) activeLink.classList.add('active');
+                }
+            }
+
+            window.addEventListener('scroll', changeNav);
+            changeNav();
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetSection = document.querySelector(targetId);
+                    if (targetSection) {
+                         targetSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            mobileMenu.addEventListener('click', (e) => {
+                if(e.target.tagName === 'A'){
+                     e.preventDefault();
+                     const targetId = e.target.getAttribute('href');
+                     const targetSection = document.querySelector(targetId);
+                     if (targetSection) {
+                         targetSection.scrollIntoView({ behavior: 'smooth' });
+                         mobileMenu.classList.add('hidden');
+                     }
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>
