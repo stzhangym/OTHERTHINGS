@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>12个月现金流预测工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F8F9FA; }
+        .chart-container { 
+            position: relative; 
+            width: 100%; 
+            height: 400px; 
+            margin-bottom: 2rem;
+        }
+        #projectionTable th { background-color: #EBF4FF; color: #1E40AF; text-align: right; padding: 0.5rem; }
+        #projectionTable td { text-align: right; padding: 0.5rem; border-bottom: 1px solid #E5E7EB; }
+        .positive { color: #10B981; font-weight: 600; }
+        .negative { color: #EF4444; font-weight: 600; }
+        .text-cny { font-size: 0.8em; margin-right: 2px; }
+    </style>
+</head>
+<body class="text-gray-800 p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto bg-white rounded-xl shadow-2xl p-6 md:p-10 border-t-8 border-teal-600">
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-teal-800">12个月现金流预测分析</h1>
+            <p class="text-gray-500 mt-2">精确模拟基于收款和付款周期的月度现金流入和流出。</p>
+        </header>
+
+        <!-- 核心概念 -->
+        <section class="mb-8 p-6 bg-teal-50 rounded-lg border border-teal-200">
+            <h2 class="text-2xl font-bold text-teal-700 mb-4 border-b pb-2">关键时间概念</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+                <div>
+                    <strong class="text-teal-600">1. 销售/支出（权责发生制）:</strong> 收入或费用发生的月份。
+                </div>
+                <div>
+                    <strong class="text-teal-600">2. 现金流入（收款）:</strong> 销售收入实际收到现金的月份，存在**收款周期**的滞后。
+                </div>
+                <div>
+                    <strong class="text-teal-600">3. 现金流出（付款）:</strong> 费用实际支付现金的月份，存在**付款周期**的滞后。
+                </div>
+            </div>
+        </section>
+
+        <!-- 互动输入区 -->
+        <section class="mb-10 p-6 bg-gray-50 rounded-lg shadow-md space-y-4">
+            <h2 class="text-xl font-bold text-gray-800 border-b pb-2">输入现金流参数</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 初始余额 -->
+                <div class="input-group">
+                    <label for="startCash" class="block text-sm font-medium text-gray-700">期初现金余额 (￥):</label>
+                    <input type="number" id="startCash" value="50000" min="0" class="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500" />
+                </div>
+                <!-- 月度销售收入 -->
+                <div class="input-group">
+                    <label for="baseSales" class="block text-sm font-medium text-gray-700">月度基准销售收入 (￥):</label>
+                    <input type="number" id="baseSales" value="100000" min="0" class="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500" />
+                </div>
+                <!-- 月度运营支出 -->
+                <div class="input-group">
+                    <label for="baseExpense" class="block text-sm font-medium text-gray-700">月度基准运营支出 (￥):</label>
+                    <input type="number" id="baseExpense" value="70000" min="0" class="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500" />
+                </div>
+                <!-- 销售增长率 -->
+                <div class="input-group">
+                    <label for="growthRate" class="block text-sm font-medium text-gray-700">月销售增长率 (%):</label>
+                    <input type="number" id="growthRate" value="5" min="0" max="100" class="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500" />
+                </div>
+                <!-- 收款周期 -->
+                <div class="input-group">
+                    <label for="collectionDays" class="block text-sm font-medium text-gray-700">平均收款周期 (天):</label>
+                    <input type="number" id="collectionDays" value="30" min="0" class="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500" />
+                </div>
+                <!-- 付款周期 -->
+                <div class="input-group">
+                    <label for="paymentDays" class="block text-sm font-medium text-gray-700">平均付款周期 (天):</label>
+                    <input type="number" id="paymentDays" value="45" min="0" class="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500" />
+                </div>
+            </div>
+            <button id="calculateBtn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg shadow-lg transition duration-300 mt-4">
+                开始预测 12 个月现金流
+            </button>
+        </section>
+
+        <!-- 结果图表 -->
+        <section class="mb-10">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">月度净现金流与期末余额趋势</h2>
+            <div class="chart-container bg-white p-4 rounded-lg shadow-inner border border-gray-200">
+                <canvas id="cashFlowChart"></canvas>
+            </div>
+        </section>
+
+        <!-- 预测表格 -->
+        <section>
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">现金流预测详情表 (12 个月)</h2>
+            <div class="overflow-x-auto shadow-xl rounded-lg border border-gray-200">
+                <table id="projectionTable" class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            <th>月份</th>
+                            <th>权责销售 (￥)</th>
+                            <th>收款流入 (￥)</th>
+                            <th>付款流出 (￥)</th>
+                            <th>净现金流 (￥)</th>
+                            <th>期末现金余额 (￥)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectionBody" class="bg-white divide-y divide-gray-200 text-sm">
+                        <!-- Table rows will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="summary" class="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-500 text-sm text-yellow-800 rounded">
+                <strong class="font-semibold">预测总结:</strong> 点击“开始预测”按钮生成分析报告。
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // --- Global Chart Instance ---
+        let cashFlowChart = null;
+
+        /**
+         * 格式化数字为货币格式 (CNY, 整数)
+         */
+        function formatCurrency(num) {
+            // 使用中文货币格式，只保留整数部分
+            return new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY', maximumFractionDigits: 0 }).format(num);
+        }
+
+        /**
+         * 格式化数字为千分位
+         */
+        function formatNumber(num) {
+            return new Intl.NumberFormat('zh-CN').format(num);
+        }
+
+        /**
+         * 核心计算与渲染函数
+         */
+        function calculateAndRender() {
+            // 1. 获取输入参数
+            const startCash = parseFloat(document.getElementById('startCash').value); // 期初现金
+            const baseSales = parseFloat(document.getElementById('baseSales').value); // 月度基准销售
+            const baseExpense = parseFloat(document.getElementById('baseExpense').value); // 月度基准支出
+            const growthRate = parseFloat(document.getElementById('growthRate').value) / 100; // 增长率
+            const collectionDays = parseInt(document.getElementById('collectionDays').value); // 收款周期 (天)
+            const paymentDays = parseInt(document.getElementById('paymentDays').value); // 付款周期 (天)
+
+            // 验证输入
+            if (isNaN(startCash) || isNaN(baseSales) || isNaN(baseExpense) || isNaN(growthRate) || isNaN(collectionDays) || isNaN(paymentDays)) {
+                document.getElementById('summary').innerHTML = '<strong class="font-semibold text-red-700">错误:</strong> 请输入所有有效的数字。';
+                return;
+            }
+
+            const months = 12;
+            const results = [];
+            const salesAccrual = []; // 权责发生制的销售收入
+            const expenseAccrual = []; // 权责发生制的运营支出
+            
+            // 计算滞后月数 (简化处理: 30天算1个月滞后)
+            const collectionLag = Math.floor(collectionDays / 30);
+            const paymentLag = Math.floor(paymentDays / 30);
+
+            // 2. 预计算权责发生制的销售收入和支出 (Pre-calculate Accrual figures)
+            // 需要计算 M0, M-1 等，以满足 M1 的现金流计算
+            
+            // 假设 M0 (前一月) 的销售和支出与 M1 基数相同 (为简化计算，使用基准值作为 M0)
+            const preMonthSales = baseSales; 
+            const preMonthExpense = baseExpense;
+
+            // 填充前导数据以应对滞后
+            for (let i = 0; i < Math.max(collectionLag, paymentLag); i++) {
+                salesAccrual.push(preMonthSales);
+                expenseAccrual.push(preMonthExpense);
+            }
+
+            // 计算 12 个月的权责销售和支出 (从第 1 个月开始)
+            for (let i = 1; i <= months; i++) {
+                const prevIndex = salesAccrual.length - 1;
+                const currentSales = salesAccrual.length === 0 ? baseSales : salesAccrual[prevIndex] * (1 + growthRate);
+                const currentExpense = expenseAccrual.length === 0 ? baseExpense : baseExpense; // 假设运营支出不增长
+
+                salesAccrual.push(currentSales);
+                expenseAccrual.push(currentExpense);
+            }
+
+            let currentCashBalance = startCash;
+            let totalShortfallMonths = 0; // 现金短缺月份计数
+            let totalEndingCash = 0;
+
+            document.getElementById('projectionBody').innerHTML = ''; // 清空表格
+
+            // 3. 循环计算 12 个月的现金流
+            for (let i = 0; i < months; i++) {
+                const monthIndex = i + 1; // 当前月份 (1-12)
+
+                // 确定现金流入/流出的来源月份索引 (由于前面有 M0 甚至 M-1，所以索引要对应到 salesAccrual 数组)
+                const inflowSourceIndex = i + collectionLag; 
+                const outflowSourceIndex = i + paymentLag; 
+                
+                // 确保索引在有效范围内 (虽然已预填充，但做校验)
+                const cashInflow = inflowSourceIndex < salesAccrual.length ? salesAccrual[inflowSourceIndex] : 0;
+                const cashOutflow = outflowSourceIndex < expenseAccrual.length ? expenseAccrual[outflowSourceIndex] : 0;
+
+                const netCashFlow = cashInflow - cashOutflow;
+                const endingCashBalance = currentCashBalance + netCashFlow;
+
+                const result = {
+                    month: monthIndex,
+                    accrualSales: salesAccrual[i + collectionLag], // 这里显示当前月份的权责销售
+                    inflow: cashInflow,
+                    outflow: cashOutflow,
+                    netFlow: netCashFlow,
+                    endingBalance: endingCashBalance
+                };
+
+                results.push(result);
+
+                // 渲染表格行
+                const tr = document.createElement('tr');
+                const endingClass = endingCashBalance >= 0 ? 'positive' : 'negative';
+                if (endingCashBalance < 0) totalShortfallMonths++;
+                
+                // 累加总期末现金（用于平均计算）
+                totalEndingCash += endingCashBalance;
+
+                tr.innerHTML = `
+                    <td class="font-semibold">${monthIndex}</td>
+                    <td><span class="text-cny">￥</span>${formatNumber(salesAccrual[i + Math.max(collectionLag, paymentLag)])}</td>
+                    <td><span class="text-cny">￥</span>${formatNumber(cashInflow)}</td>
+                    <td><span class="text-cny">￥</span>${formatNumber(cashOutflow)}</td>
+                    <td class="${netCashFlow >= 0 ? 'positive' : 'negative'}"><span class="text-cny">￥</span>${formatNumber(netCashFlow)}</td>
+                    <td class="${endingClass}"><span class="text-cny">￥</span>${formatNumber(endingCashBalance)}</td>
+                `;
+                document.getElementById('projectionBody').appendChild(tr);
+
+                // 更新下一期的期初现金
+                currentCashBalance = endingCashBalance;
+            }
+
+            // 4. 渲染图表
+            renderCashFlowChart(results);
+            
+            // 5. 渲染总结
+            let summaryText = `在 ${months} 个月的预测期内：`;
+            if (totalShortfallMonths > 0) {
+                summaryText += `<br> <strong class="text-red-600">⚠ 警告:</strong> 预测有 <strong class="text-red-600">${totalShortfallMonths} 个月</strong> 的期末现金余额低于 ￥0。您可能需要考虑短期融资或加快收款。`;
+            } else {
+                summaryText += `<br> 您的现金流状况保持健康，期末余额从未低于 ￥0。`;
+            }
+            summaryText += `<br> 最终期末现金余额为 <strong class="text-teal-600">${formatCurrency(results[months - 1].endingBalance)}</strong>。`;
+            
+            document.getElementById('summary').className = `mt-4 p-4 ${totalShortfallMonths > 0 ? 'bg-red-50 border-red-500' : 'bg-green-50 border-green-500'} border-l-4 text-sm rounded`;
+            document.getElementById('summary').innerHTML = `<strong class="font-semibold">预测总结:</strong> ${summaryText}`;
+        }
+
+        /**
+         * 渲染现金流图表
+         */
+        function renderCashFlowChart(results) {
+            const ctx = document.getElementById('cashFlowChart').getContext('2d');
+            const labels = results.map(r => `M${r.month}`);
+            const netFlowData = results.map(r => r.netFlow);
+            const endingBalanceData = results.map(r => r.endingBalance);
+
+            if (cashFlowChart) cashFlowChart.destroy();
+
+            cashFlowChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '净现金流 (Net Cash Flow)',
+                            data: netFlowData,
+                            borderColor: '#047857', // 绿色
+                            backgroundColor: netFlowData.map(d => d >= 0 ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'),
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3,
+                            yAxisID: 'y_net'
+                        },
+                        {
+                            label: '期末现金余额 (Ending Balance)',
+                            data: endingBalanceData,
+                            borderColor: '#1D4ED8', // 蓝色
+                            backgroundColor: 'transparent',
+                            borderWidth: 3,
+                            pointRadius: 4,
+                            tension: 0.1,
+                            yAxisID: 'y_balance'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: '月度净现金流与期末余额趋势图' },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': ';
+                                    label += formatCurrency(context.parsed.y);
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y_net: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: '净现金流 (￥)' },
+                            ticks: { callback: (value) => formatCurrency(value, 0).replace('￥', '') },
+                            grid: { drawOnChartArea: false }
+                        },
+                        y_balance: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: { display: true, text: '期末余额 (￥)' },
+                            ticks: { callback: (value) => formatCurrency(value, 0).replace('￥', '') }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- Initialization ---
+        document.getElementById('calculateBtn').addEventListener('click', calculateAndRender);
+
+        // Initial rendering on load
+        window.onload = calculateAndRender;
+    </script>
+</body>
+</html>
