@@ -1,0 +1,247 @@
+<!-- 英文成语小报插图生成器 -->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英文成语小报 - 画蛇添足</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7f3e8; }
+        .newspaper-container {
+            max-width: 1024px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border: 4px solid #6b4629;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+        }
+        .header-title {
+            color: #b91c1c;
+            font-size: 2.5rem;
+            text-align: center;
+            font-weight: 700;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #6b4629;
+            margin-bottom: 20px;
+        }
+        .section-title {
+            color: #38a169;
+            font-weight: 600;
+            font-size: 1.5rem;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            border-left: 5px solid #38a169;
+            padding-left: 10px;
+        }
+        .button-primary {
+            background-color: #38a169;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px #2f855a;
+        }
+        .button-primary:hover {
+            background-color: #2f855a;
+        }
+        .info-box {
+            background-color: #ffe0b2;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px dashed #6b4629;
+        }
+        .content-text {
+            line-height: 1.6;
+            color: #4a5568;
+        }
+    </style>
+</head>
+<body>
+
+<div class="newspaper-container">
+
+    <!-- 报头区：调整为更直接的表达 -->
+    <h1 class="header-title">The Snake's Lesson: A Chinese Idiom Story</h1>
+    <p class="text-center text-sm text-gray-600 mb-6">英文成语小报定稿内容 - 画蛇添足 (Huà Shé Tiān Zú)</p>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- 左侧：插图生成区 -->
+        <div class="col-span-1 border-r pr-6 border-gray-300">
+            <h2 class="section-title text-center">插图生成 (Illustration Area)</h2>
+            <div id="image-container" class="mt-4 p-4 border border-gray-400 bg-gray-100 min-h-64 flex items-center justify-center rounded-lg shadow-inner">
+                <img id="generated-image" src="" alt="Generated Illustration Placeholder" class="hidden max-w-full h-auto rounded-lg">
+                <p id="image-placeholder" class="text-gray-500 text-center">
+                    点击下方按钮生成“画蛇添足”故事场景插图。
+                    <br><small class="text-xs">（场景：古人席地而坐，有人在地上画蛇，酒坛在旁。）</small>
+                </p>
+            </div>
+
+            <button id="generate-button" class="button-primary w-full mt-4">生成小报插图</button>
+            <div id="loading-indicator" class="text-center text-sm mt-2 text-blue-600 hidden">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                正在生成中，请稍候...
+            </div>
+            <div id="error-message" class="text-center text-sm mt-2 text-red-600 hidden"></div>
+
+        </div>
+
+        <!-- 右侧：小报内容展示区 -->
+        <div class="col-span-2">
+            
+            <!-- 故事区：简化句型和词汇 -->
+            <h2 class="section-title">🐍 Section 1: The Story</h2>
+            <h3 class="font-bold text-lg text-gray-700 ml-4">Subtitle: The Folly of Adding a Foot (多此一举的愚蠢)</h3>
+            <p class="content-text ml-4">In an old kingdom called Chu, a rich family gave their servants a large jar of wine as a reward. There was only one jar, so the servants agreed to have a drawing contest to decide who would drink it.</p>
+            <p class="content-text ml-4">They decided that the fastest person to draw a snake would win the whole jar.</p>
+            <p class="content-text ml-4">One servant was very quick. He finished his snake in no time. He saw the others were still busy, so he felt too proud and wanted to show off his skill. He decided to draw four extra feet on his snake.</p>
+            <p class="content-text ml-4">Just as he was finishing the feet, another servant completed his drawing. The second servant quickly took the jar of wine. He said, "A snake does not have feet! You added something extra and spoiled the drawing. Therefore, you are the loser."</p>
+            <p class="content-text ml-4">The first servant lost the precious wine because he did more than he needed to do.</p>
+
+            <!-- 释义与寓意区：简化表达 -->
+            <h2 class="section-title">🔍 Section 2: Idiom & Meaning</h2>
+            <h3 class="font-bold text-lg text-gray-700 ml-4">Subtitle: What Does It Mean? (它的意思是什么?)</h3>
+            <div class="ml-4 content-text">
+                <ul class="list-disc list-inside space-y-1">
+                    <li>**Literal Translation:** Drawing a snake and adding feet.</li>
+                    <li>**English Interpretation:** To spoil something good by adding things that are not needed.</li>
+                </ul>
+                <p class="mt-2 font-semibold">寓意 (The Moral):</p>
+                <p>The lesson is: If you do too much or add things that are not needed, you can spoil what was already finished and good. **Learn to stop at the right time.**</p>
+            </div>
+
+            <!-- 文化对比区：简化英文表达的解释 -->
+            <h2 class="section-title">🌐 Section 3: Cultural Bridge</h2>
+            <h3 class="font-bold text-lg text-gray-700 ml-4">Subtitle: Bridging Wisdom: Similar English Expressions (相似英文表达)</h3>
+            <div class="ml-4 mt-2">
+                <table class="min-w-full border border-gray-300">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-700 text-left">
+                            <th class="py-2 px-4 border-b">English Expression</th>
+                            <th class="py-2 px-4 border-b">Meaning and Context</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-2 px-4 border-b">**Gild the lily.**</td>
+                            <td class="py-2 px-4 border-b">Don't try to make perfect things better.</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-2 px-4 border-b">**Less is more.**</td>
+                            <td class="py-2 px-4 border-b">Sometimes doing less is better than doing too much.</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-2 px-4 border-b">**To overkill.**</td>
+                            <td class="py-2 px-4 border-b">To use too much effort for a simple task.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 基础信息区 -->
+    <div class="info-box mt-6 p-4 text-right">
+        <p class="font-semibold">基础信息 (Basic Information):</p>
+        <p>Chinese Idiom: **画蛇添足 (Huà Shé Tiān Zú)**</p>
+        <p>Class: Grade 5, Class **[班级]**</p>
+        <p>Name: **[姓名]**</p>
+    </div>
+</div>
+
+<script>
+    document.getElementById('generate-button').addEventListener('click', generateIllustration);
+
+    const apiKey = ""; // Canvas will provide this automatically
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+
+    const generateButton = document.getElementById('generate-button');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const imagePlaceholder = document.getElementById('image-placeholder');
+    const generatedImage = document.getElementById('generated-image');
+    const imageContainer = document.getElementById('image-container');
+    const errorMessage = document.getElementById('error-message');
+
+    // Exponential backoff retry mechanism
+    async function fetchWithRetry(url, options, maxRetries = 5) {
+        let error = null;
+        for (let i = 0; i < maxRetries; i++) {
+            try {
+                const response = await fetch(url, options);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (e) {
+                error = e;
+                const delay = Math.pow(2, i) * 1000;
+                if (i < maxRetries - 1) {
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        }
+        throw error;
+    }
+
+    async function generateIllustration() {
+        // 保持插图描述不变，以确保生成中国传统风格的插画
+        const prompt = "A traditional Chinese ink painting style illustration, depicting a scene from the Warring States Period. Several ancient men are sitting on the ground (Chu State style clothing). One man is actively drawing a snake on the dirt or a large flat stone with a stick. He looks smug and confident. A second man is watching him with a curious expression. A single, large terracotta wine jar is placed prominently next to them. The setting is rustic and historical.";
+
+        const payload = { 
+            instances: [{ prompt: prompt }], 
+            parameters: { 
+                "sampleCount": 1,
+                "aspectRatio": "1:1" // Square image is generally good for small illustrations
+            } 
+        };
+
+        generateButton.disabled = true;
+        loadingIndicator.classList.remove('hidden');
+        imagePlaceholder.classList.add('hidden');
+        generatedImage.classList.add('hidden');
+        errorMessage.classList.add('hidden');
+
+        try {
+            const response = await fetchWithRetry(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.predictions && response.predictions.length > 0 && response.predictions[0].bytesBase64Encoded) {
+                const base64Data = response.predictions[0].bytesBase64Encoded;
+                const imageUrl = `data:image/png;base64,${base64Data}`;
+                generatedImage.src = imageUrl;
+                generatedImage.onload = () => {
+                    loadingIndicator.classList.add('hidden');
+                    generatedImage.classList.remove('hidden');
+                    imageContainer.style.backgroundColor = '#fff'; // Change background color after image loads
+                };
+                generatedImage.onerror = () => {
+                    throw new Error("Failed to load generated image.");
+                };
+            } else {
+                throw new Error("Image generation failed. No image data returned.");
+            }
+        } catch (error) {
+            console.error("Error generating image:", error);
+            errorMessage.textContent = `生成插图失败，请重试。(${error.message})`;
+            errorMessage.classList.remove('hidden');
+            loadingIndicator.classList.add('hidden');
+            imagePlaceholder.classList.remove('hidden');
+            imageContainer.style.backgroundColor = '#f3f4f6';
+        } finally {
+            generateButton.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>
