@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>招聘初审汇报仪表盘</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+        body { font-family: 'Noto Sans SC', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+    <div class="max-w-6xl mx-auto p-4 md:p-8 space-y-8">
+        
+        <!-- 页眉 -->
+        <header class="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-3xl shadow-sm border border-slate-100 gap-6">
+            <div class="space-y-1 text-center md:text-left">
+                <div class="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full mb-2 uppercase tracking-wider">2025专项招聘报告 · 校准版</div>
+                <h1 class="text-3xl font-black text-slate-900">新春晖公司“百里挑一”初审仪表盘</h1>
+                <p class="text-slate-500 font-medium">综合管理岗 / 食品安全管理岗 · 数据实时校准</p>
+            </div>
+            <div class="bg-blue-600 text-white p-5 rounded-2xl shadow-xl shadow-blue-200 text-center min-w-[180px]">
+                <div class="text-xs opacity-80 font-bold mb-1">面试时间安排</div>
+                <div class="text-2xl font-black underline decoration-2 underline-offset-4">1月10日</div>
+                <div class="text-xs mt-1 opacity-70">地点：待通知</div>
+            </div>
+        </header>
+
+        <!-- 核心指标卡片 -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-2xl border border-slate-100 text-center">
+                <div class="text-slate-400 text-xs font-bold mb-2">全覆盖确认</div>
+                <div class="text-3xl font-black text-blue-600">214<span class="text-sm font-medium ml-1 text-slate-400">人</span></div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-slate-100 text-center">
+                <div class="text-slate-400 text-xs font-bold mb-2">过审拟面试</div>
+                <div class="text-3xl font-black text-green-600">31<span class="text-sm font-medium ml-1 text-slate-400">人</span></div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-slate-100 text-center">
+                <div class="text-slate-400 text-xs font-bold mb-2">坚定复报率</div>
+                <div class="text-3xl font-black text-emerald-600">38.7<span class="text-sm font-medium ml-1 text-slate-400">%</span></div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-slate-100 text-center">
+                <div class="text-slate-400 text-xs font-bold mb-2">本轮新增率</div>
+                <div class="text-3xl font-black text-slate-900">61.3<span class="text-sm font-medium ml-1 text-slate-400">%</span></div>
+            </div>
+        </div>
+
+        <!-- 关键流程时间轴 -->
+        <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+            <h2 class="text-lg font-bold mb-6 flex items-center gap-2 text-slate-900">
+                <span class="w-1.5 h-5 bg-blue-600 rounded-full"></span> 招聘关键流程节点
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                    <div class="text-blue-600 font-black text-xs mb-1">12月24日</div>
+                    <div class="font-bold text-slate-800">邀请短信群发</div>
+                    <p class="text-[11px] text-slate-500 mt-1">触达214名入库优秀校友</p>
+                </div>
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                    <div class="text-indigo-600 font-black text-xs mb-1">12月28日前</div>
+                    <div class="font-bold text-slate-800">分院回访确认</div>
+                    <p class="text-[11px] text-slate-500 mt-1">214人100%知晓并确认</p>
+                </div>
+                <div class="p-4 rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-100">
+                    <div class="text-blue-100 font-black text-xs mb-1">1月10日</div>
+                    <div class="font-bold uppercase tracking-widest">正式面试考核</div>
+                    <p class="text-[11px] opacity-80 mt-1">新春晖公司现场选拔</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 图表区 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- 学院分布 -->
+            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                <h3 class="font-bold text-slate-900 mb-6 flex justify-between items-center">
+                    <span>分院过审人数排名</span>
+                    <span class="text-xs text-slate-400 font-normal">单位：人</span>
+                </h3>
+                <canvas id="collegeChart" height="200"></canvas>
+            </div>
+
+            <!-- 意愿分析 - 重点更新部分 -->
+            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                <h3 class="font-bold text-slate-900 mb-6">入职意愿与岗位吸引力分析</h3>
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <div class="w-48 h-48">
+                        <canvas id="loyaltyChart"></canvas>
+                    </div>
+                    <div class="flex-1 space-y-4 w-full">
+                        <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs font-bold text-emerald-700">坚定复报 (绿色)</span>
+                                <span class="text-lg font-black text-emerald-800">12人</span>
+                            </div>
+                            <div class="text-[10px] text-emerald-600 leading-tight">连续两轮报考，入职意愿极强，属于核心高意向群体。</div>
+                        </div>
+                        <div class="p-4 bg-slate-100 rounded-2xl border border-slate-200">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs font-bold text-slate-600">本轮新增 (黑色)</span>
+                                <span class="text-lg font-black text-slate-900">19人</span>
+                            </div>
+                            <div class="text-[10px] text-slate-500 leading-tight">岗位影响力进一步扩大，有效吸引了更多优秀校友关注。</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 人才画像补充 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+             <!-- 届别构成 -->
+             <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                <h3 class="font-bold text-slate-900 mb-6">届别人员结构</h3>
+                <canvas id="batchChart" height="120"></canvas>
+            </div>
+            
+            <!-- 综合素质看板 -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 flex flex-col justify-center items-center">
+                    <div class="text-red-600 text-3xl font-black mb-1">18<span class="text-xs ml-1 text-slate-400">人</span></div>
+                    <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">中共党员/预备党员</div>
+                </div>
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 flex flex-col justify-center items-center">
+                    <div class="text-indigo-600 text-3xl font-black mb-1">23 : 8</div>
+                    <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">性别比 (女:男)</div>
+                </div>
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 flex flex-col justify-center items-center">
+                    <div class="text-blue-600 text-3xl font-black mb-1">9 : 22</div>
+                    <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">学历比 (本:专)</div>
+                </div>
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 flex flex-col justify-center items-center">
+                    <div class="text-amber-500 text-3xl font-black mb-1">100<span class="text-xs ml-1 text-slate-400">%</span></div>
+                    <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">短信送达知晓率</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // 1. 学院分布图表
+        new Chart(document.getElementById('collegeChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['艺术学院', '城建学院', '经管学院', '医学院', '智数院', '智药院', '智造院'],
+                datasets: [{
+                    data: [9, 7, 6, 3, 3, 2, 1],
+                    backgroundColor: ['#2563eb', '#3b82f6', '#60a5fa', '#94a3b8', '#94a3b8', '#cbd5e1', '#e2e8f0'],
+                    borderRadius: 6,
+                    barThickness: 20
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { display: false } },
+                    y: { grid: { display: false }, ticks: { font: { weight: 'bold', size: 11 } } }
+                }
+            }
+        });
+
+        // 2. 意愿分析图表 (重点更新)
+        new Chart(document.getElementById('loyaltyChart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['坚定复报', '本轮新增'],
+                datasets: [{
+                    data: [12, 19],
+                    backgroundColor: ['#10b981', '#1e293b'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                cutout: '75%',
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // 3. 届别分布图表
+        new Chart(document.getElementById('batchChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['2026届', '2024届', '2025届', '2023届'],
+                datasets: [{
+                    label: '人数',
+                    data: [11, 10, 5, 5],
+                    backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { stepSize: 2 } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
