@@ -1,0 +1,218 @@
+import React from 'react';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer, 
+  Cell, 
+  PieChart, 
+  Pie, 
+  Label
+} from 'recharts';
+
+/**
+ * 体检指标可视化报告组件
+ * 已修复 JSX 字符转义错误（将 > 替换为 {'>'}）
+ */
+const App = () => {
+  // 关键定量指标数据
+  const clinicalData = [
+    { name: '总胆固醇', value: 6.28, refHigh: 5.6, unit: 'mmol/L', status: 'high' },
+    { name: '促甲状腺素', value: 5.75, refHigh: 5.1, unit: 'mIU/L', status: 'high' },
+    { name: '血尿酸', value: 358.4, refHigh: 340, unit: 'umol/L', status: 'high' },
+    { name: '低密度脂蛋白', value: 3.32, refHigh: 3.37, unit: 'mmol/L', status: 'normal' },
+  ];
+
+  // 风险构成数据
+  const riskDistribution = [
+    { name: '异常项', value: 3, color: '#ef4444' },
+    { name: '正常项', value: 45, color: '#10b981' },
+    { name: '需关注项', value: 4, color: '#f59e0b' },
+  ];
+
+  const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-xl text-xs sm:text-sm">
+          <p className="font-bold text-gray-800 mb-1">{data.name}</p>
+          <div className="space-y-1">
+            <p className="flex justify-between gap-4 text-gray-600">
+              <span>当前值:</span>
+              <span className="font-mono font-bold text-blue-600">{data.value} {data.unit}</span>
+            </p>
+            <p className="flex justify-between gap-4 text-gray-400 italic">
+              <span>标准上限:</span>
+              <span>{data.refHigh} {data.unit}</span>
+            </p>
+          </div>
+          <p className={`mt-2 font-semibold ${data.status === 'high' ? 'text-red-500' : 'text-green-500'}`}>
+            状态: {data.status === 'high' ? '超出范围' : '正常范围'}
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div className="p-4 sm:p-6 bg-slate-50 min-h-screen font-sans text-slate-800">
+      <div className="max-w-5xl mx-auto space-y-6">
+        
+        {/* 顶部标题栏 */}
+        <header className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="text-center md:text-left">
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight">健康数据分析报告</h1>
+            <p className="text-slate-400 text-sm mt-1">深度解读体检核心指标与风险分布</p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-3">
+            <span className="px-3 py-1 bg-slate-100 rounded-full text-xs font-medium text-slate-600">刘女士 / 40岁</span>
+            <span className="px-3 py-1 bg-blue-50 rounded-full text-xs font-medium text-blue-600 italic">2025-12-19</span>
+          </div>
+        </header>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          {/* 指标对比柱状图 */}
+          <div className="lg:col-span-2 bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+            <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
+              <div className="w-1.5 h-6 bg-blue-500 rounded-full"></div>
+              核心异常指标监控
+            </h2>
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart 
+                  data={clinicalData} 
+                  layout="vertical" 
+                  margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                  <XAxis type="number" hide />
+                  <YAxis 
+                    dataKey="name" 
+                    type="category" 
+                    tick={{ fontSize: 13, fill: '#64748b', fontWeight: 500 }}
+                    width={80}
+                  />
+                  <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8fafc' }} />
+                  <Bar dataKey="value" radius={[0, 8, 8, 0]} barSize={32}>
+                    {clinicalData.map((entry, index) => (
+                      <Cell key={`bar-cell-${index}`} fill={entry.status === 'high' ? '#f87171' : '#38bdf8'} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-4 flex justify-center gap-6 text-[10px] sm:text-xs text-slate-400">
+              <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-red-400"></div> 超出标准值</span>
+              <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-blue-400"></div> 正常/临界</span>
+            </div>
+          </div>
+
+          {/* 状态占比饼图 */}
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+            <h2 className="text-lg font-bold mb-6 text-center">整体健康分布</h2>
+            <div className="h-[260px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={riskDistribution}
+                    innerRadius={65}
+                    outerRadius={85}
+                    paddingAngle={8}
+                    dataKey="value"
+                    animationBegin={0}
+                    animationDuration={1500}
+                  >
+                    {riskDistribution.map((entry, index) => (
+                      <Cell key={`pie-cell-${index}`} fill={entry.color} stroke="none" />
+                    ))}
+                    <Label 
+                      content={({ viewBox }) => {
+                        const { cx, cy } = viewBox;
+                        return (
+                          <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle">
+                            <tspan x={cx} dy="-0.5em" className="fill-green-500 font-bold text-lg">94%</tspan>
+                            <tspan x={cx} dy="1.5em" className="fill-slate-400 text-xs">项目正常</tspan>
+                          </text>
+                        );
+                      }}
+                    />
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="space-y-2 mt-4">
+              {riskDistribution.map((item, idx) => (
+                <div key={idx} className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 transition-colors">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }}></div>
+                    <span className="text-xs font-medium text-slate-600">{item.name}</span>
+                  </div>
+                  <span className="text-xs font-mono text-slate-400 font-bold">{item.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* 改善行动建议卡片 */}
+        <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+          <h2 className="text-lg font-bold mb-5 flex items-center gap-2">
+            <div className="w-1.5 h-6 bg-indigo-500 rounded-full"></div>
+            核心健康预警与对策
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-5 rounded-2xl bg-rose-50 border border-rose-100 group hover:bg-rose-100 transition-all cursor-default">
+              <div className="flex justify-between items-start mb-2">
+                <span className="text-rose-700 font-black">内分泌</span>
+                <span className="text-[10px] bg-rose-200 text-rose-800 px-1.5 rounded">重要</span>
+              </div>
+              <p className="text-xs text-rose-600 leading-relaxed">TSH升高提示<b>亚临床甲减</b>。可能导致乏力、代谢率降低。建议复查甲功抗体。</p>
+            </div>
+            <div className="p-5 rounded-2xl bg-orange-50 border border-orange-100 group hover:bg-orange-100 transition-all cursor-default">
+              <p className="text-orange-700 font-black mb-2">血脂异常</p>
+              <p className="text-xs text-orange-600 leading-relaxed">总胆固醇达6.28。需减少反式脂肪酸摄入，增加<b>高纤维蔬果</b>比例。</p>
+            </div>
+            <div className="p-5 rounded-2xl bg-amber-50 border border-amber-100 group hover:bg-amber-100 transition-all cursor-default">
+              <p className="text-amber-700 font-black mb-2">尿酸控制</p>
+              <p className="text-xs text-amber-600 leading-relaxed">尿酸处于临界。建议每日饮水<b>{'>'}2L</b>，减少酒精、肉汤及动物内脏。</p>
+            </div>
+            <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-100 group hover:bg-emerald-100 transition-all cursor-default">
+              <p className="text-emerald-700 font-black mb-2">良性随访</p>
+              <p className="text-xs text-emerald-600 leading-relaxed">甲状腺结节与乳腺增生均为2类良性。<b>情绪调理</b>是预防进一步加重的关键。</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 随访日历 */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-8 rounded-3xl shadow-xl">
+          <h2 className="text-xl font-black mb-6">医学干预建议周期表</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            <div className="relative pl-6 border-l-2 border-blue-400/30">
+              <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-white shadow-lg"></div>
+              <h3 className="font-bold text-lg mb-1">Q1 复查 (3个月)</h3>
+              <p className="text-blue-100 text-xs">重点：甲状腺功能五项 + 甲功相关抗体，明确是否需用药。</p>
+            </div>
+            <div className="relative pl-6 border-l-2 border-blue-400/30">
+              <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-blue-300"></div>
+              <h3 className="font-bold text-lg mb-1">Q2 复查 (6个月)</h3>
+              <p className="text-blue-100 text-xs">重点：血脂、尿酸复核，验证饮食与运动调整的有效性。</p>
+            </div>
+            <div className="relative pl-6 border-l-2 border-blue-400/30">
+              <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-blue-300"></div>
+              <h3 className="font-bold text-lg mb-1">年度筛查 (12个月)</h3>
+              <p className="text-blue-100 text-xs">重点：影像学动态追踪（甲状腺/乳腺B超）及全身体检。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default App;
