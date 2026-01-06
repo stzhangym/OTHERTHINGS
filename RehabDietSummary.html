@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>代谢重启与康复 - 个人健康仪表盘</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'medical-bg': '#F5F5F4', // Stone 100
+                        'medical-card': '#FFFFFF',
+                        'medical-text': '#44403C', // Stone 700
+                        'medical-accent': '#0D9488', // Teal 600
+                        'medical-warning': '#E11D48', // Rose 600
+                        'medical-info': '#0EA5E9', // Sky 500
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        body { font-family: 'Noto Sans SC', sans-serif; }
+        
+        /* Chart Container Strict Styling */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #E5E7EB;
+            transform: translateX(-50%);
+            z-index: 0;
+        }
+        
+        .active-tab {
+            border-bottom: 2px solid #0D9488;
+            color: #0D9488;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-medical-bg text-medical-text">
+
+    <!-- REQUIRED PLACEHOLDERS -->
+    <!-- Chosen Palette: Warm Neutrals (Stone) with Teal (Healing/Health) and Rose (Alerts) accents. -->
+    <!-- Application Structure Plan: A Dashboard layout divided into 4 logical phases: 1. Diagnosis (Current Status), 2. Protocol (The Plan), 3. Tactics (Specific Actions), 4. Prognosis (Results & Future). This structure moves from the 'Problem' to the 'Solution' and finally 'Results', mirroring a medical consultation flow but interactive. -->
+    <!-- Visualization & Content Choices: 
+         1. Bar Chart for Vital Indicators: Compares current high values vs normal limits to visualize the severity of the metabolic syndrome.
+         2. Interactive Timeline Cards: Breaks down the 8+16 diet into actionable time-slots (Breakfast, Lunch, Fasting) to make the routine digestible.
+         3. Impact Comparison Chart: Visualizes why running was stopped and rowing/walking started, focusing on joint impact vs cardio benefit.
+         4. Dynamic Symptom Checklist: Shows the "Before" vs "After" state based on the diet's effect.
+         5. Canvas/Chart.js used for all charts. NO SVG. NO Mermaid. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-medical-accent rounded-full flex items-center justify-center text-white">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">代谢重启与康复档案</h1>
+                    <p class="text-xs text-gray-500">Metabolic Reboot & Rehab Summary</p>
+                </div>
+            </div>
+            <div class="hidden md:flex gap-6 text-sm font-medium text-gray-600">
+                <button onclick="scrollToSection('status')" class="hover:text-medical-accent transition">核心指标</button>
+                <button onclick="scrollToSection('protocol')" class="hover:text-medical-accent transition">执行方案</button>
+                <button onclick="scrollToSection('tactics')" class="hover:text-medical-accent transition">关键战术</button>
+                <button onclick="scrollToSection('results')" class="hover:text-medical-accent transition">成果与展望</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8 space-y-12">
+
+        <!-- Intro -->
+        <section class="text-center max-w-3xl mx-auto mb-10">
+            <h2 class="text-3xl font-light mb-4">从<span class="text-medical-warning font-bold">代谢预警</span>到<span class="text-medical-accent font-bold">系统重启</span></h2>
+            <p class="text-lg text-gray-600 leading-relaxed">
+                本档案记录了一次针对代谢综合征（高血脂、高尿酸）与陈旧性跟腱损伤的综合干预。
+                通过饮食调整（Diet）、液体管理与康复性运动，旨在消除脑雾、恢复体能并减轻关节压力。
+            </p>
+        </section>
+
+        <!-- Section 1: The Challenge (Indicators) -->
+        <section id="status" class="bg-white rounded-xl shadow-sm p-6 md:p-8">
+            <div class="flex flex-col md:flex-row gap-8">
+                <!-- Left: Narrative -->
+                <div class="md:w-1/3 space-y-4">
+                    <h3 class="text-2xl font-bold text-gray-800 border-l-4 border-medical-warning pl-3">核心挑战：红色警戒</h3>
+                    <p class="text-gray-600 text-sm">
+                        初期身体检查揭示了典型的代谢综合征特征。高尿酸与高血脂不仅导致血液粘稠，更加剧了跟腱止点的炎症反应。
+                    </p>
+                    <div class="bg-red-50 p-4 rounded-lg border border-red-100">
+                        <h4 class="font-bold text-medical-warning mb-2 text-sm"><i class="fas fa-exclamation-triangle mr-2"></i>身体预警信号</h4>
+                        <ul class="text-sm space-y-2 text-gray-700">
+                            <li><i class="fas fa-smog mr-2 text-gray-400"></i>脑雾与呼吸急促</li>
+                            <li><i class="fas fa-heart-rate mr-2 text-gray-400"></i>体位性心跳加快</li>
+                            <li><i class="fas fa-bone mr-2 text-gray-400"></i>指趾关节刺痛</li>
+                            <li><i class="fas fa-allergies mr-2 text-gray-400"></i>皮肤代谢性瘙痒</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Right: Chart -->
+                <div class="md:w-2/3">
+                    <div class="chart-container">
+                        <canvas id="vitalsChart"></canvas>
+                    </div>
+                    <p class="text-center text-xs text-gray-400 mt-2">点击图例可隐藏/显示数据。红色代表当前值，灰色代表正常上限。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: The Protocol (8+16 Diet) -->
+        <section id="protocol">
+            <div class="mb-6">
+                <h3 class="text-2xl font-bold text-gray-800 border-l-4 border-medical-accent pl-3">执行方案：8+16 胰岛素管理</h3>
+                <p class="text-gray-600 mt-2">
+                    通过严格控制进食窗口（8小时）和拉长空腹时间（16小时），降低胰岛素水平，启动脂肪氧化。
+                    点击下方卡片查看具体执行细节。
+                </p>
+            </div>
+
+            <!-- Interactive Diet Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- Morning -->
+                <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition cursor-pointer group" onclick="toggleDetail('breakfast-detail')">
+                    <div class="p-6 border-b border-gray-100">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full font-bold">开启窗口</span>
+                            <i class="fas fa-coffee text-amber-500 text-xl"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-gray-800">早餐：高蛋白修复</h4>
+                        <p class="text-sm text-gray-500 mt-1">关键：优质蛋白 + 复合碳水</p>
+                    </div>
+                    <div id="breakfast-detail" class="hidden p-6 bg-stone-50 text-sm text-gray-700 animate-fade-in">
+                        <ul class="space-y-2">
+                            <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><strong>干丝/鸡蛋：</strong>修复跟腱不伤肾</li>
+                            <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><strong>红薯/玉米：</strong>高钾消肿，低GI</li>
+                            <li class="flex items-start"><i class="fas fa-ban text-red-500 mt-1 mr-2"></i><strong>禁忌：</strong>高糖包子，油条</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 text-center text-medical-accent text-sm font-medium group-hover:bg-gray-50 rounded-b-xl">
+                        点击展开详情 <i class="fas fa-chevron-down ml-1"></i>
+                    </div>
+                </div>
+
+                <!-- Noon -->
+                <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition cursor-pointer group" onclick="toggleDetail('lunch-detail')">
+                    <div class="p-6 border-b border-gray-100">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full font-bold">营养填充</span>
+                            <i class="fas fa-utensils text-orange-500 text-xl"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-gray-800">午餐：精准控油</h4>
+                        <p class="text-sm text-gray-500 mt-1">关键：去皮 + 控钠 + 血管清道夫</p>
+                    </div>
+                    <div id="lunch-detail" class="hidden p-6 bg-stone-50 text-sm text-gray-700 animate-fade-in">
+                        <ul class="space-y-2">
+                            <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><strong>黑鱼/鸡腿(去皮)：</strong>Omega-3降脂</li>
+                            <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><strong>大量叶菜/木耳：</strong>吸附油脂</li>
+                            <li class="flex items-start"><i class="fas fa-ban text-red-500 mt-1 mr-2"></i><strong>禁忌：</strong>肉汤（高嘌呤），油炸</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 text-center text-medical-accent text-sm font-medium group-hover:bg-gray-50 rounded-b-xl">
+                        点击展开详情 <i class="fas fa-chevron-down ml-1"></i>
+                    </div>
+                </div>
+
+                <!-- Night/Fasting -->
+                <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition cursor-pointer group" onclick="toggleDetail('fasting-detail')">
+                    <div class="p-6 border-b border-gray-100">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-bold">代谢清理</span>
+                            <i class="fas fa-glass-water text-blue-500 text-xl"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-gray-800">断食期：纯净补给</h4>
+                        <p class="text-sm text-gray-500 mt-1">关键：液体管理 + 零热量</p>
+                    </div>
+                    <div id="fasting-detail" class="hidden p-6 bg-stone-50 text-sm text-gray-700 animate-fade-in">
+                        <ul class="space-y-2">
+                            <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><strong>正山小种/白芽奇兰：</strong>温和利尿排酸</li>
+                            <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><strong>大量白水：</strong>稀释血液，降肌酐</li>
+                            <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><strong>香蕉(如需)：</strong>防抽筋战术加餐</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 text-center text-medical-accent text-sm font-medium group-hover:bg-gray-50 rounded-b-xl">
+                        点击展开详情 <i class="fas fa-chevron-down ml-1"></i>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Section 3: Tactics (Exercise & Fluids) -->
+        <section id="tactics" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            <!-- Fluid Strategy -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-tint text-medical-info mr-2"></i> 液体管理策略
+                </h3>
+                <p class="text-sm text-gray-600 mb-6">
+                    针对尿酸(560)和肌酐(106)，采用“冲刷策略”。
+                    正山小种与大量白水交替，旨在稀释血液，减轻“脑雾”。
+                </p>
+                <!-- Simple Visualization of hydration -->
+                <div class="flex justify-center items-end space-x-4 h-32 mb-2">
+                    <div class="w-16 bg-blue-100 rounded-t-lg relative group">
+                        <div class="absolute bottom-0 w-full bg-blue-400 rounded-t-lg transition-all duration-1000" style="height: 80%"></div>
+                        <span class="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs font-bold text-gray-500">白水</span>
+                    </div>
+                    <div class="w-16 bg-amber-100 rounded-t-lg relative group">
+                        <div class="absolute bottom-0 w-full bg-amber-600 rounded-t-lg transition-all duration-1000" style="height: 60%"></div>
+                        <span class="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs font-bold text-gray-500">茶</span>
+                    </div>
+                </div>
+                <p class="text-center text-xs text-gray-500">目标：全天尿液清澈，无沉淀。</p>
+            </div>
+
+            <!-- Exercise Strategy -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-running text-medical-accent mr-2"></i> 运动模式切换
+                </h3>
+                <p class="text-sm text-gray-600 mb-4">
+                    鉴于右跟腱止点骨赘及左腿代偿抽筋风险，运动模式从高冲击转向低冲击。
+                </p>
+                <div class="chart-container" style="height: 200px;">
+                    <canvas id="exerciseChart"></canvas>
+                </div>
+                <div class="mt-4 flex justify-between text-xs text-gray-500 border-t pt-2">
+                    <span><i class="fas fa-times-circle text-red-500"></i> 跑步: 暂停</span>
+                    <span><i class="fas fa-check-circle text-green-500"></i> 划船/游泳: 推荐</span>
+                    <span><i class="fas fa-check-circle text-green-500"></i> 散步: 主动恢复</span>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Section 4: Results & Future -->
+        <section id="results" class="bg-stone-100 rounded-xl p-8 border border-stone-200">
+            <div class="flex flex-col md:flex-row justify-between items-start gap-8">
+                
+                <!-- Results Checklist -->
+                <div class="md:w-1/2">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">阶段性成果</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center p-3 bg-white rounded-lg shadow-sm">
+                            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 mr-3">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-800">脑雾消散</h4>
+                                <p class="text-xs text-gray-500">呼吸顺畅，体位性心悸消失</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center p-3 bg-white rounded-lg shadow-sm">
+                            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 mr-3">
+                                <i class="fas fa-child"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-800">关节痛感减轻</h4>
+                                <p class="text-xs text-gray-500">尿酸结晶沉积减少，皮肤瘙痒缓解</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center p-3 bg-white rounded-lg shadow-sm">
+                            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 mr-3">
+                                <i class="fas fa-weight"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-800">代谢优化</h4>
+                                <p class="text-xs text-gray-500">成功度过水肿期，目标直指 88.0kg</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Future Actions -->
+                <div class="md:w-1/2">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">后续行动建议</h3>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-gray-50 text-gray-600 font-medium">
+                                <tr>
+                                    <th class="p-3">优先级</th>
+                                    <th class="p-3">行动项</th>
+                                    <th class="p-3">目的</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr>
+                                    <td class="p-3"><span class="bg-red-100 text-red-800 px-2 py-0.5 rounded text-xs">高</span></td>
+                                    <td class="p-3 font-medium">监测肌酐</td>
+                                    <td class="p-3 text-gray-500">防过劳，补水少量多次</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3"><span class="bg-orange-100 text-orange-800 px-2 py-0.5 rounded text-xs">中</span></td>
+                                    <td class="p-3 font-medium">血脂攻坚</td>
+                                    <td class="p-3 text-gray-500">引入洋葱/木耳，降胆固醇</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3"><span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-xs">恒常</span></td>
+                                    <td class="p-3 font-medium">跟腱保护</td>
+                                    <td class="p-3 text-gray-500">抬高患肢，热敷效应</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 text-center text-sm">
+        <p class="opacity-70">Metabolic Reboot & Rehabilitation Plan &copy; 2026</p>
+        <p class="opacity-50 text-xs mt-2">Generated based on "Diet_Summary.md"</p>
+    </footer>
+
+    <script>
+        // --- 1. Vital Signs Chart ---
+        const ctxVitals = document.getElementById('vitalsChart').getContext('2d');
+        const vitalsChart = new Chart(ctxVitals, {
+            type: 'bar',
+            data: {
+                labels: ['总胆固醇', '甘油三酯', '尿酸 (x100)', '肌酐'],
+                datasets: [
+                    {
+                        label: '当前值',
+                        data: [7.36, 3.40, 5.60, 106], // Uric acid scaled down for visualization
+                        backgroundColor: 'rgba(225, 29, 72, 0.8)', // Rose 600
+                        borderRadius: 4,
+                        barPercentage: 0.6
+                    },
+                    {
+                        label: '正常上限',
+                        data: [5.20, 1.70, 4.20, 97], // Uric acid scaled down
+                        backgroundColor: 'rgba(209, 213, 219, 0.5)', // Gray 300
+                        borderRadius: 4,
+                        barPercentage: 0.6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                let value = context.raw;
+                                if (context.label.includes('尿酸')) {
+                                    value = (value * 100).toFixed(0); // Scale back up for tooltip
+                                }
+                                return label + value;
+                            }
+                        }
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f3f4f6' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // --- 2. Exercise Impact Chart ---
+        const ctxExercise = document.getElementById('exerciseChart').getContext('2d');
+        const exerciseChart = new Chart(ctxExercise, {
+            type: 'bar',
+            data: {
+                labels: ['跑步', '划船机', '游泳', '散步'],
+                datasets: [
+                    {
+                        label: '跟腱冲击风险',
+                        data: [90, 30, 10, 20],
+                        backgroundColor: [
+                            'rgba(239, 68, 68, 0.7)', // Red for running
+                            'rgba(16, 185, 129, 0.7)', // Green for rowing
+                            'rgba(16, 185, 129, 0.7)', // Green for swimming
+                            'rgba(59, 130, 246, 0.7)'  // Blue for walking
+                        ],
+                        borderWidth: 0
+                    },
+                    {
+                        label: '燃脂/代谢效益',
+                        data: [80, 85, 75, 50],
+                        type: 'line',
+                        borderColor: '#F59E0B',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#fff',
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'bottom' }
+                },
+                scales: {
+                    y: { display: false },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // --- 3. Interaction Logic ---
+        function toggleDetail(id) {
+            const el = document.getElementById(id);
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+            } else {
+                el.classList.add('hidden');
+            }
+        }
+
+        function scrollToSection(id) {
+            const element = document.getElementById(id);
+            const headerOffset = 80;
+            const elementPosition = element.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: "smooth"
+            });
+        }
+    </script>
+</body>
+</html>
