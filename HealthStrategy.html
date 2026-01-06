@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人健康策略全景图 - 从竞技到康复</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'health-primary': '#0F172A',
+                        'health-accent': '#10B981',
+                        'health-warning': '#F43F5E',
+                        'health-neutral': '#F8FAFC',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', 'Noto Sans SC', sans-serif; }
+        .chart-container { position: relative; width: 100%; height: 280px; }
+        .timeline-card::before {
+            content: '';
+            position: absolute;
+            left: -1px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #E2E8F0;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 leading-tight">
+
+<!-- Chosen Palette: Slate & Emerald (Professional & Recovery) -->
+<!-- Application Structure Plan: 
+     1. 历史演变流（Timeline）：展示从健身高峰、新冠打击、跟腱断裂到现状的生理逻辑。
+     2. 数据深度解析：将最新的肾功数据与之前的高血脂/高尿酸进行关联。
+     3. 交互式调整清单：根据熬夜、饮食、心率的历史教训提出未来策略。
+     4. 核心目标展示。
+-->
+<!-- Visualization & Content Choices:
+     1. 多折线图：展示不同阶段的预估心率、体重与代谢压力曲线。
+     2. 对比仪表盘：展示“肌肉型肌酐”与“代谢压力型肌酐”的区别。
+     3. 风险因子矩阵：关联熬夜、高尿酸与跟腱脆性的逻辑。
+-->
+<!-- CONFIRMATION: NO SVG used. NO Mermaid JS used. -->
+
+<header class="bg-health-primary text-white py-6">
+    <div class="max-w-5xl mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold flex items-center gap-2">
+                    <i class="fas fa-microscope text-health-accent"></i> 个人健康策略全景分析
+                </h1>
+                <p class="text-slate-400 text-xs mt-1 uppercase tracking-wider">从职业健身习惯到代谢系统重建</p>
+            </div>
+            <div class="flex gap-4">
+                <div class="text-center px-3 border-r border-slate-700">
+                    <div class="text-lg font-bold">41岁</div>
+                    <div class="text-[10px] text-slate-500 uppercase">当前年龄</div>
+                </div>
+                <div class="text-center px-3">
+                    <div class="text-lg font-bold text-health-accent">88kg</div>
+                    <div class="text-[10px] text-slate-500 uppercase">当前体重</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 py-8 space-y-10">
+
+    <!-- Section 1: 历史生理轨迹 -->
+    <section>
+        <div class="flex items-center gap-3 mb-6">
+            <h3 class="text-xl font-bold">生理轨迹回顾 (2017-2026)</h3>
+            <div class="h-[1px] flex-1 bg-slate-200"></div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white p-4 rounded-xl border-l-4 border-health-accent shadow-sm">
+                <div class="text-[10px] text-slate-400 font-bold uppercase">2017 - 2024.10</div>
+                <div class="font-bold text-slate-800">精英状态</div>
+                <p class="text-[11px] text-slate-500 mt-1">半马、健身、低体脂。心率60+，代谢旺盛。</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl border-l-4 border-health-warning shadow-sm">
+                <div class="text-[10px] text-slate-400 font-bold uppercase">2024.10 - 2025.04</div>
+                <div class="font-bold text-slate-800">新冠后遗症</div>
+                <p class="text-[11px] text-slate-500 mt-1">静息心率90-100，呼吸急促。开始由于不适停止运动。</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl border-l-4 border-amber-500 shadow-sm">
+                <div class="text-[10px] text-slate-400 font-bold uppercase">2025.05 - 2025.12</div>
+                <div class="font-bold text-slate-800">损伤叠加</div>
+                <p class="text-[11px] text-slate-500 mt-1">跟腱断裂，作息失调(1-2点睡)，尿酸攀升至560。</p>
+            </div>
+            <div class="bg-health-primary p-4 rounded-xl border-l-4 border-white shadow-sm text-white">
+                <div class="text-[10px] text-slate-500 font-bold uppercase">2026.01 - 至今</div>
+                <div class="font-bold">重启与康复</div>
+                <p class="text-[11px] text-slate-400 mt-1">恢复低冲击运动。指标高位但趋势向好。</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <h4 class="text-sm font-bold text-slate-400 mb-4 uppercase tracking-widest">关键生理参数演变 (趋势模拟)</h4>
+            <div class="chart-container">
+                <canvas id="timelineChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: 肾健康深度关联 -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                <i class="fas fa-filter text-blue-500"></i> 肾功能指标深度解析
+            </h3>
+            <div class="space-y-6">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600 flex-shrink-0">
+                        <i class="fas fa-dumbbell"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold">肌酐来源分析</h4>
+                        <p class="text-xs text-slate-500 mt-1">
+                            之前的 eGFR 79 受高肌肉量影响；现在的 106 更多反映的是**熬夜应激 + 脱水 + 高脂血症**的代谢压力。肾小球滤网（尿检阴性）依然健康，但必须降压。
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600 flex-shrink-0">
+                        <i class="fas fa-water-bolt"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold">尿比重 (1.029) 的警示</h4>
+                        <p class="text-xs text-slate-500 mt-1">
+                            这说明你长期处于缺水状态。粘稠的血液不仅让心脏累，更让跟腱微循环变差，延缓愈合。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 p-6 rounded-2xl shadow-sm text-white relative overflow-hidden">
+            <div class="relative z-10">
+                <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                    <i class="fas fa-clock text-health-accent"></i> 作息与代谢的“因果律”
+                </h3>
+                <div class="space-y-4 text-xs">
+                    <div class="p-3 bg-white/5 rounded-lg border border-white/10">
+                        <span class="text-health-accent font-bold">凌晨 1-2 点：</span> 肝脏进行脂肪代谢的黄金期被错失，导致总胆固醇飙升至 7.36。
+                    </div>
+                    <div class="p-3 bg-white/5 rounded-lg border border-white/10">
+                        <span class="text-health-accent font-bold">清晨 6:45：</span> 睡眠不足 5 小时，皮质醇水平全天维持高位，尿酸更难排出。
+                    </div>
+                    <div class="p-3 bg-white/5 rounded-lg border border-white/10">
+                        <span class="text-health-accent font-bold">现状改进：</span> 既然脑雾已散，睡眠必须从凌晨 1 点提前到 23:30，这相当于给肾脏和心脏放了半天假。
+                    </div>
+                </div>
+            </div>
+            <div class="absolute -right-10 -bottom-10 opacity-10">
+                <i class="fas fa-moon text-9xl"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: 运动与饮食微调 (Data-Driven) -->
+    <section class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+        <h3 class="text-xl font-bold mb-6">接下来的“综合修复”战术</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="space-y-4 text-center">
+                <div class="w-16 h-16 bg-emerald-100 text-health-accent rounded-full flex items-center justify-center mx-auto text-2xl">
+                    <i class="fas fa-mug-hot"></i>
+                </div>
+                <h4 class="font-bold">液体策略</h4>
+                <p class="text-xs text-slate-500">不再狂灌水，而是“匀喝”正山小种。通过稳定血容量，把尿比重从 1.029 降到 1.015 左右。</p>
+            </div>
+            <div class="space-y-4 text-center">
+                <div class="w-16 h-16 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center mx-auto text-2xl">
+                    <i class="fas fa-person-walking"></i>
+                </div>
+                <h4 class="font-bold">运动降载</h4>
+                <p class="text-xs text-slate-500">承认目前的 106 肌酐。运动以“散步/低阻力划船”为主，严禁对抗性运动。目标是降甘油三酯(3.40)。</p>
+            </div>
+            <div class="space-y-4 text-center">
+                <div class="w-16 h-16 bg-indigo-100 text-indigo-500 rounded-full flex items-center justify-center mx-auto text-2xl">
+                    <i class="fas fa-bed"></i>
+                </div>
+                <h4 class="font-bold">强制睡眠窗口</h4>
+                <p class="text-xs text-slate-500">23:30 - 06:45 是底线。为了代谢掉血液里的 7.36 胆固醇，睡眠质量比跑步重要。</p>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer class="bg-white border-t border-slate-200 py-10 text-center text-slate-400 text-xs">
+    <p>数据驱动决策 · 个人健康档案馆 · 2026</p>
+</footer>
+
+<script>
+    const ctx = document.getElementById('timelineChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['健身高峰', '新冠冲击', '跟腱断裂', '现状(重启)'],
+            datasets: [
+                {
+                    label: '代谢压力 (血脂/尿酸)',
+                    data: [10, 40, 95, 75],
+                    borderColor: '#F43F5E',
+                    backgroundColor: 'rgba(244, 63, 94, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: '心肺状态 (HR稳定度)',
+                    data: [95, 20, 15, 45],
+                    borderColor: '#10B981',
+                    borderDash: [5, 5],
+                    tension: 0.4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
+            },
+            scales: {
+                y: { display: false, beginAtZero: true },
+                x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
